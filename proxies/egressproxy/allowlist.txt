@@ -1,0 +1,8 @@
+# Egress allowlist for AGENT containers. One host:port per line.
+# EMPTY by default == deny everything.
+#
+# Add only what the engagement needs (an in-scope target, a package mirror).
+# NEVER add the model-API host (bedrock-runtime.*.amazonaws.com / api.anthropic.com / *aiplatform.googleapis.com):
+# agents reach the model only through the credential proxy.
+#
+# Restart the egress proxy after editing (scripts/start-egress-proxy.sh), between batches.
