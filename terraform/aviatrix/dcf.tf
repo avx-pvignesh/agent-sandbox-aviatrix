@@ -23,11 +23,24 @@ resource "aviatrix_distributed_firewalling_proxy_ca_config" "this" {
 }
 
 # ------------------------------------------------------------------ SmartGroups
+# Default: match by instance tag, so a rebuilt host is covered with no rule change. The base
+# stack tags the host Role=agent-host. Set smartgroup_by_cidr=true to match the host subnet instead.
 resource "aviatrix_smart_group" "agent_host" {
   name = "sg-agent-host"
   selector {
-    match_expressions {
-      cidr = local.base.host_subnet_cidr
+    dynamic "match_expressions" {
+      for_each = var.smartgroup_by_cidr ? [] : [1]
+      content {
+        type   = "vm"
+        region = local.base.region
+        tags   = { Role = "agent-host" }
+      }
+    }
+    dynamic "match_expressions" {
+      for_each = var.smartgroup_by_cidr ? [1] : []
+      content {
+        cidr = local.base.host_subnet_cidr
+      }
     }
   }
 }

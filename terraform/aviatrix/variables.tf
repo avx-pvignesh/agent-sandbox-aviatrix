@@ -104,3 +104,9 @@ variable "setup_phase" {
   type        = bool
   default     = true
 }
+
+variable "smartgroup_by_cidr" {
+  description = "Match the host SmartGroup by subnet CIDR instead of the Role=agent-host instance tag."
+  type        = bool
+  default     = false
+}

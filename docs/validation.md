@@ -87,6 +87,10 @@ scripts/dcf-deny-check.sh | tee runs/dcf-deny-check.log
 
 From the host it probes the model API host, `example.com` and `1.1.1.1`. In CoPilot → Security → Distributed Cloud Firewall → Monitor, filter source = the host IP: the public-host probes show as **Deny** on `default-deny-all`; a real model call from a batch shows as **Permit** on `permit-model-api`. With URL filtering on, the URL column is populated, and a request to the model host with a path not in the WebGroup also shows as a Deny.
 
+### No unexpected host egress
+
+After a batch, filter Monitor by the host and look at the Deny rows. The only denies should be your own probes. Recurring `UDP/123` (time sync) or `api.snapcraft.io` denies mean the host quiet-down in `bootstrap.sh` did not take effect: `chronyc sources` should list `169.254.169.123`, and `systemctl list-timers | grep -E 'snap|motd|fwupd'` should be empty. Treat any other new, recurring deny as something to investigate.
+
 ### The proxy forwards, the gateway denies (URL filtering)
 
 The credential proxy's path check is a prefix match on `/model/` by design, so it forwards calls to models other than the permitted one. This script sends three requests through it and two directly from the host:

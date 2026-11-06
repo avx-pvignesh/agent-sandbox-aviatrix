@@ -51,6 +51,27 @@ EOF
 udevadm control --reload-rules && udevadm trigger --name-match=kvm || true
 chown root:kvm /dev/kvm && chmod 0660 /dev/kvm
 
+# ----------------------------------------------------------------- 1b. Quiet the host's own egress
+# Under default-deny, an unmodified Ubuntu host keeps trying to reach public time servers (UDP/123)
+# and the snap store. Neither is an agent, but each is a path out and floods the deny log.
+log "Time sync via the Amazon Time Sync Service (link-local, never leaves the instance)"
+apt-get install -y chrony >/dev/null
+systemctl disable --now systemd-timesyncd 2>/dev/null || true
+cat > /etc/chrony/chrony.conf <<'EOF'
+server 169.254.169.123 prefer iburst minpoll 4 maxpoll 4
+makestep 1.0 3
+rtcsync
+driftfile /var/lib/chrony/chrony.drift
+EOF
+systemctl enable chrony && systemctl restart chrony
+
+log "Disable snap store refreshes and Ubuntu update-check timers"
+snap refresh --hold=forever >/dev/null 2>&1 || true
+systemctl disable --now snapd.refresh.timer snapd.snap-repair.timer 2>/dev/null || true
+systemctl disable --now motd-news.timer fwupd-refresh.timer 2>/dev/null || true
+sed -i 's/^ENABLED=.*/ENABLED=0/' /etc/default/motd-news 2>/dev/null || true
+chronyc -n sources 2>/dev/null | grep -q 169.254.169.123 || echo "WARNING: chrony not yet synced to 169.254.169.123"
+
 # ----------------------------------------------------------------- 2. Docker CE (Engine 25+) + containerd.io (2.x)
 log "Install Docker CE + containerd from Docker's apt repo"
 apt-get install -y ca-certificates curl gnupg lvm2 thin-provisioning-tools jq xz-utils zstd python3

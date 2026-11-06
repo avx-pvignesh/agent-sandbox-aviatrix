@@ -73,7 +73,7 @@ Pick a Kata 3.x release (Go runtime + Firecracker) and its tarball digest from t
 KATA_VERSION=3.x.y KATA_SHA256=<digest> host/bootstrap.sh
 ```
 
-The script: checks KVM and CPU mitigations, disables swap, loads `vhost_vsock`/`dm_thin_pool`, installs Docker CE and containerd, builds an LVM thin pool on the second EBS volume and configures the devmapper snapshotter, installs Kata (digest-verified), applies the pinned Firecracker settings with `host/kata-harden.py`, makes the guest kernel and image immutable, registers the `kata-fc` runtime, creates the internal `agents` network, and runs a guest-vs-host kernel smoke test.
+The script: checks KVM and CPU mitigations, disables swap, points time sync at the Amazon Time Sync Service (169.254.169.123) and turns off snap refresh and Ubuntu update-check timers (otherwise the host's own NTP and snap traffic shows up as default-deny hits), loads `vhost_vsock`/`dm_thin_pool`, installs Docker CE and containerd, builds an LVM thin pool on the second EBS volume and configures the devmapper snapshotter, installs Kata (digest-verified), applies the pinned Firecracker settings with `host/kata-harden.py`, makes the guest kernel and image immutable, registers the `kata-fc` runtime, creates the internal `agents` network, and runs a guest-vs-host kernel smoke test.
 
 Checks after it finishes:
 

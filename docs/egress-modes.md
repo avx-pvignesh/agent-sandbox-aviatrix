@@ -22,6 +22,8 @@ The policy, in priority order:
 
 Set `setup_phase = false` and re-apply before running agents. Rule 20 disappears and the host can reach nothing but the model API.
 
+The source SmartGroup (`sg-agent-host`) matches instances tagged `Role=agent-host`, which the base stack sets on the host. A rebuilt host is covered with no rule change. Set `smartgroup_by_cidr = true` to match the host subnet instead. Put any test target in its own SmartGroup, permit it only from the host's group, and deny its outbound traffic; the repo defines the host group only.
+
 ### SNI filtering (`url_filtering = false`)
 
 The permit rule matches the TLS SNI, i.e. the hostname. No decryption. This contains the host to the model-API domain and is enough to show a denied egress attempt in CoPilot.
@@ -44,6 +46,8 @@ Requirements:
 Pinning the URL to *your* account needs a model identifier that contains an account-scoped component, i.e. an application inference profile (`arn:aws:bedrock:<region>:<account>:application-inference-profile/<id>`). Creating one requires `bedrock:CreateInferenceProfile`.
 
 If you can only use a shared system profile, URL filtering still denies every other model and path, but it cannot tell your account from another using the same profile ID. State that limitation; it is a strong interim control and the application profile closes the gap.
+
+Concretely: the URL rule below pins the model path, so other models and other paths are denied. Pinning *your account* needs the application inference profile. A colon-bearing ARN cannot be entered literally; wildcard the segment (controller 8.1+) and keep the profile ID, which is unique to your account. With a shared profile (`global.*`) the gateway cannot distinguish your account from another account calling the same profile.
 
 ### Reading a block correctly
 
