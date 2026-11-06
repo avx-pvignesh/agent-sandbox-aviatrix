@@ -1,0 +1,31 @@
+# Terraform
+**/.terraform/
+**/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+*.tfplan
+crash.log
+
+# Secrets and generated material. Never commit these.
+dcf-ca/
+*.pem
+*.key
+*.crt
+credential
+.env
+
+# Run artefacts
+runs/
+*.log
+*.tgz
+*.b64
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+__pycache__/
+*.pyc
