@@ -77,7 +77,7 @@ docker ps -a --format '{{.Names}}'     # only egressproxy, target, target-net
 pgrep -x firecracker                   # exactly one PID (the target VM)
 ```
 
-## 6. DCF checks (`aviatrix` mode)
+## 6. DCF checks
 
 ### Denied egress from the host appears in CoPilot
 

@@ -14,23 +14,6 @@ variable "name_prefix" {
   default = "agent-sandbox"
 }
 
-variable "egress_mode" {
-  description = <<-EOT
-    How the host reaches the internet.
-      aviatrix : no NAT. The host subnet's default route is programmed to an Aviatrix spoke gateway
-                 (deployed separately from ../aviatrix). Egress is enforced by DCF. Two public subnets
-                 are created for the spoke gateway and its HA peer.
-      nat      : a NAT gateway in a public subnet. Egress is enforced only by the in-host proxies.
-                 This is the baseline (single-lock) design for comparison.
-  EOT
-  type        = string
-  default     = "aviatrix"
-  validation {
-    condition     = contains(["aviatrix", "nat"], var.egress_mode)
-    error_message = "egress_mode must be \"aviatrix\" or \"nat\"."
-  }
-}
-
 # ---- Network ----
 variable "vpc_cidr" {
   type    = string
@@ -41,12 +24,12 @@ variable "host_subnet_cidr" {
   default = "10.20.1.0/24"
 }
 variable "public_subnet_cidr" {
-  description = "Public subnet: Aviatrix spoke gateway (aviatrix mode) or NAT gateway (nat mode)."
+  description = "Public subnet for the Aviatrix spoke gateway."
   type        = string
   default     = "10.20.0.0/26"
 }
 variable "public_ha_subnet_cidr" {
-  description = "Second public subnet for the spoke gateway HA peer (aviatrix mode only)."
+  description = "Second public subnet for the spoke gateway HA peer ."
   type        = string
   default     = "10.20.0.64/26"
 }

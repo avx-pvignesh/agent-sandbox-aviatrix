@@ -1,6 +1,6 @@
 # Deployment
 
-Two phases. **Setup** builds the host and images and needs package sources reachable. **Run** is when agents execute; the host can reach nothing but the model API. In `aviatrix` mode the phase is a Terraform variable (`setup_phase`). In `nat` mode there is no network-layer difference between the phases; the in-host proxies are the only control.
+Two phases. **Setup** builds the host and images and needs package sources reachable. **Run** is when agents execute; the host can reach nothing but the model API. The phase is a Terraform variable (`setup_phase`) enforced at the gateway.
 
 Notation: `[ws]` your workstation, `[host]` a Session Manager shell on the EC2 host as root, `[copilot]` the Aviatrix CoPilot UI.
 
@@ -9,14 +9,14 @@ Notation: `[ws]` your workstation, `[host]` a Session Manager shell on the EC2 h
 - A dedicated AWS account (or at least a dedicated VPC) and a CLI profile for it.
 - Terraform >= 1.6. AWS CLI with the Session Manager plugin.
 - A model-API credential scoped to agent runs. For Bedrock, a Bedrock API key (bearer token) is the simplest; keep its IAM policy limited to the one inference profile you will use.
-- `aviatrix` mode: Controller IP, admin credentials, and the access-account name for this AWS account.
+- Controller IP, admin credentials, and the access-account name for this AWS account.
 
 ## 1. Network and host
 
 ```bash
 cd terraform/base
 cp terraform.tfvars.example terraform.tfvars
-# set: aws_profile, egress_mode ("aviatrix" or "nat"), instance_type
+# set: aws_profile, instance_type
 terraform init
 terraform apply
 terraform output
@@ -24,9 +24,9 @@ terraform output
 
 Outputs include `host_instance_id`, `host_private_ip` and a ready-made `ssm_connect` command. The host has no public IP and no inbound rules; SSM through the interface endpoints is the only way in.
 
-Check from the AWS console or CLI that the host subnet's route table has **no** route to the internet gateway. In `nat` mode it should have `0.0.0.0/0 → nat-...`. In `aviatrix` mode it has no default route yet.
+Check from the AWS console or CLI that the host subnet's route table has **no** route to the internet gateway. It has no default route yet.
 
-## 2. Aviatrix spoke gateway and DCF (`aviatrix` mode only)
+## 2. Aviatrix spoke gateway and DCF
 
 ```bash
 cd terraform/aviatrix
@@ -42,7 +42,7 @@ Quick sanity from the host once it is up (step 3): `curl -sI https://download.do
 
 ## 3. Get the repo onto the host
 
-The host has no inbound path and, in `aviatrix` mode, only package sources and the model API outbound. Two ways that work:
+The host has no inbound path and only package sources and the model API outbound. Two ways that work:
 
 **Through SSM `send-command`** (no interactive paste; good for ~100 KB):
 
@@ -102,7 +102,7 @@ scripts/start-target.sh            # target up at 172.30.0.20:3000 in its own mi
 
 Nothing else on the host holds a secret. The credential file is read by the launcher and written into the credential proxy's tmpfs at each launch.
 
-## 6. Close the setup-phase holes (`aviatrix` mode)
+## 6. Close the setup-phase holes
 
 ```bash
 # [ws]
@@ -129,7 +129,7 @@ terraform -chdir=terraform/aviatrix apply \
   -var decryption_ca_cert_path=./dcf-ca/ca.pem -var decryption_ca_key_path=./dcf-ca/ca-key.pem
 ```
 
-See [egress-modes.md](egress-modes.md) for the URL-entry rules (no colons) and the account-binding caveat. Then re-run the validation in [validation.md](validation.md); any DCF change means re-validating.
+See [dcf-policy.md](dcf-policy.md) for the URL-entry rules (no colons) and the account-binding caveat. Then re-run the validation in [validation.md](validation.md); any DCF change means re-validating.
 
 ## 8. Run an agent
 
@@ -147,7 +147,7 @@ Provider and model are environment variables on `launch.sh`: `PROVIDER=bedrock|a
 ## Teardown
 
 ```bash
-terraform -chdir=terraform/aviatrix destroy     # aviatrix mode
+terraform -chdir=terraform/aviatrix destroy
 terraform -chdir=terraform/base destroy
 ```
 

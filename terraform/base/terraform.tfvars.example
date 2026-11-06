@@ -1,10 +1,6 @@
 region      = "us-east-1"
 aws_profile = "agent-sandbox" # or null for the default credential chain
 
-# "aviatrix" (two locks: in-host proxies + DCF at the VPC edge; apply ../aviatrix afterwards)
-# "nat"      (one lock: in-host proxies only; NAT gateway for internet)
-egress_mode = "aviatrix"
-
 instance_type = "m8i.4xlarge" # any c8i/m8i/r8i size, or a *.metal type
 
 # vpc_cidr              = "10.20.0.0/16"

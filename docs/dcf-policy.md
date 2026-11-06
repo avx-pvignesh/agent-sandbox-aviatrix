@@ -1,16 +1,6 @@
-# Egress modes
+# DCF policy
 
-The `egress_mode` variable in `terraform/base` selects how the host reaches the internet. Everything else is identical, so you can deploy both and compare.
-
-## `nat`: baseline, one lock
-
-A NAT gateway in the public subnet, `0.0.0.0/0` from the host subnet pointed at it. There is no network-layer filtering; the egress proxy and credential proxy are the only egress controls. Use this to reproduce the article's design as written, or as the "before" in a comparison.
-
-Nothing to apply in `terraform/aviatrix`.
-
-## `aviatrix`: two locks
-
-No NAT. The base stack creates two public subnets for the spoke gateway and its HA peer and leaves the host route table without a default route. Applying `terraform/aviatrix` creates the spoke gateway with `single_ip_snat = true`; the controller then programs `0.0.0.0/0` to the gateway in the host route table, and DCF decides what leaves.
+The host has one path out: the Aviatrix spoke gateway. The base stack creates two public subnets for the spoke gateway and its HA peer and leaves the host route table without a default route. Applying `terraform/aviatrix` then creates the spoke gateway with `single_ip_snat = true`; the controller programs `0.0.0.0/0` to the gateway in the host route table, and DCF decides what leaves.
 
 The policy, in priority order:
 

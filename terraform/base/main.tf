@@ -3,10 +3,9 @@ data "aws_availability_zones" "az" {
 }
 
 locals {
-  az       = data.aws_availability_zones.az.names[0]
-  az2      = data.aws_availability_zones.az.names[1]
-  aviatrix = var.egress_mode == "aviatrix"
-  tags     = merge({ Project = var.name_prefix }, var.tags)
+  az   = data.aws_availability_zones.az.names[0]
+  az2  = data.aws_availability_zones.az.names[1]
+  tags = merge({ Project = var.name_prefix }, var.tags)
 }
 
 # ------------------------------------------------------------------ VPC
@@ -17,7 +16,7 @@ resource "aws_vpc" "this" {
   tags                 = merge(local.tags, { Name = "${var.name_prefix}-vpc" })
 }
 
-# The IGW serves the public subnet(s) only: the spoke gateway's EIP, or the NAT gateway.
+# The IGW serves the public subnets only (the spoke gateway and its HA peer).
 # The host subnet never gets a route to it.
 resource "aws_internet_gateway" "this" {
   vpc_id = aws_vpc.this.id
@@ -32,7 +31,6 @@ resource "aws_subnet" "public" {
 }
 
 resource "aws_subnet" "public_ha" {
-  count             = local.aviatrix ? 1 : 0
   vpc_id            = aws_vpc.this.id
   cidr_block        = var.public_ha_subnet_cidr
   availability_zone = local.az2
@@ -54,8 +52,7 @@ resource "aws_route_table_association" "public" {
 }
 
 resource "aws_route_table_association" "public_ha" {
-  count          = local.aviatrix ? 1 : 0
-  subnet_id      = aws_subnet.public_ha[0].id
+  subnet_id      = aws_subnet.public_ha.id
   route_table_id = aws_route_table.public.id
 }
 
@@ -67,9 +64,8 @@ resource "aws_subnet" "host" {
   tags              = merge(local.tags, { Name = "${var.name_prefix}-host" })
 }
 
-# aviatrix mode: no default route here. The Aviatrix controller programs 0.0.0.0/0 to the
+# No default route here. The Aviatrix controller programs 0.0.0.0/0 to the
 # spoke gateway once the gateway is created with SNAT, so Terraform must not fight it.
-# nat mode: the default route is added in egress_nat.tf.
 resource "aws_route_table" "host" {
   vpc_id = aws_vpc.this.id
   tags   = merge(local.tags, { Name = "${var.name_prefix}-host-rt" })

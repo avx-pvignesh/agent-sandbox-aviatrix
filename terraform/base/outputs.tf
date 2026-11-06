@@ -2,10 +2,6 @@ output "region" {
   value = var.region
 }
 
-output "egress_mode" {
-  value = var.egress_mode
-}
-
 output "vpc_id" {
   value = aws_vpc.this.id
 }
@@ -23,7 +19,7 @@ output "public_subnet_cidr" {
 }
 
 output "public_ha_subnet_cidr" {
-  value = local.aviatrix ? aws_subnet.public_ha[0].cidr_block : null
+  value = aws_subnet.public_ha.cidr_block
 }
 
 output "host_instance_id" {
@@ -32,10 +28,6 @@ output "host_instance_id" {
 
 output "host_private_ip" {
   value = aws_instance.host.private_ip
-}
-
-output "nat_public_ip" {
-  value = local.aviatrix ? null : aws_eip.nat[0].public_ip
 }
 
 output "ssm_connect" {

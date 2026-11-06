@@ -26,13 +26,6 @@ resource "aviatrix_spoke_gateway" "this" {
   ha_gw_size = var.gw_size
 
   single_ip_snat = true
-
-  lifecycle {
-    precondition {
-      condition     = local.base.egress_mode == "aviatrix"
-      error_message = "The base stack was applied with egress_mode = \"${local.base.egress_mode}\". Re-apply it with egress_mode = \"aviatrix\" before deploying the spoke gateway."
-    }
-  }
 }
 
 # Optional transit attachment. Not needed for local egress + DCF.
