@@ -1,0 +1,23 @@
+controller_ip    = "CONTROLLER_IP_OR_FQDN"
+username         = "admin"
+password         = "CHANGE_ME" # or: export TF_VAR_password=...
+aws_account_name = "aws-agent-sandbox"
+
+gw_size         = "t3.medium"
+transit_gw_name = "" # empty = standalone spoke with local egress
+
+# Pick one provider.
+model_api_fqdns = ["bedrock-runtime.us-east-1.amazonaws.com"]
+# Anthropic API: ["api.anthropic.com"]
+# Vertex:        ["us-east5-aiplatform.googleapis.com"]
+
+# Start with SNI filtering. Switch to URL filtering once the host is built and the CA is in place.
+url_filtering = false
+# model_api_urls = [
+#   "bedrock-runtime.us-east-1.amazonaws.com/model/global.anthropic.claude-sonnet-5-5/invoke",
+#   "bedrock-runtime.us-east-1.amazonaws.com/model/global.anthropic.claude-sonnet-5-5/invoke-with-response-stream",
+# ]
+# decryption_ca_cert_path = "../../dcf-ca/ca.pem"
+# decryption_ca_key_path  = "../../dcf-ca/ca-key.pem"
+
+setup_phase = true # set false before running agents
