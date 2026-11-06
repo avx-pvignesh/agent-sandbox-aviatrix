@@ -21,3 +21,7 @@ url_filtering = false
 # decryption_ca_key_path  = "../../dcf-ca/ca-key.pem"
 
 setup_phase = true # set false before running agents
+
+# DCF must already be enabled on the controller (CoPilot > Security > Distributed Cloud Firewall).
+# On a dedicated lab controller you can let this stack turn it on instead:
+# manage_dcf_feature = true

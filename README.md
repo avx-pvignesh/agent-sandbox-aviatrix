@@ -61,7 +61,7 @@ Full steps, including copying files to a host that has no inbound path, are in [
 - An AWS account you can dedicate to this. The host holds a model-API credential and runs adversarial tests; don't share it with other workloads.
 - An EC2 type that exposes KVM: a nested-virtualisation family (`c8i`, `m8i`, `r8i`) or any `*.metal`.
 - A model-API credential scoped only to agent runs (Bedrock API key, Anthropic API key, or Vertex). Pick one provider.
-- An Aviatrix Controller/CoPilot (7.1.1710+ for a private decryption CA; 8.1+ if you need path wildcards in URL WebGroups) with an access account for the AWS account above.
+- An Aviatrix Controller/CoPilot 9.0+ with DCF enabled and an access account for the AWS account above. The Terraform uses provider resources introduced in 9.0 (`aviatrix_config_feature`, `aviatrix_dcf_mitm_ca`); pin the provider to your controller release.
 - Terraform >= 1.6, AWS CLI with Session Manager plugin.
 
 ## Documents

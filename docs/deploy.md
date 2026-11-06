@@ -9,7 +9,7 @@ Notation: `[ws]` your workstation, `[host]` a Session Manager shell on the EC2 h
 - A dedicated AWS account (or at least a dedicated VPC) and a CLI profile for it.
 - Terraform >= 1.6. AWS CLI with the Session Manager plugin.
 - A model-API credential scoped to agent runs. For Bedrock, a Bedrock API key (bearer token) is the simplest; keep its IAM policy limited to the one inference profile you will use.
-- Controller IP, admin credentials, and the access-account name for this AWS account.
+- Aviatrix Controller 9.0+ with DCF already enabled, its IP, admin credentials, and the access-account name for this AWS account. The stack does not toggle DCF itself unless you set `manage_dcf_feature = true`, because destroying that resource would disable DCF controller-wide.
 
 ## 1. Network and host
 

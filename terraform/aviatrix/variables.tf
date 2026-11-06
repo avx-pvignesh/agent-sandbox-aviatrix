@@ -110,3 +110,15 @@ variable "smartgroup_by_cidr" {
   type        = bool
   default     = false
 }
+
+variable "manage_dcf_feature" {
+  description = "Enable the controller-wide DCF feature from this stack. Leave false on a shared controller (destroy would disable DCF everywhere)."
+  type        = bool
+  default     = false
+}
+
+variable "decryption_ca_name" {
+  description = "Name of the MITM CA uploaded for TLS decryption."
+  type        = string
+  default     = "agent-sandbox-dcf-ca"
+}

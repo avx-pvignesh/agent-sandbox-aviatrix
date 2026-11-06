@@ -8,18 +8,29 @@ locals {
   upload_ca = var.url_filtering && var.decryption_ca_cert_path != "" && var.decryption_ca_key_path != ""
 }
 
-resource "aviatrix_distributed_firewalling_config" "this" {
-  enable_distributed_firewalling = true
+# DCF is a controller-wide feature (feature name "microseg"). Most controllers that will run this
+# already have it on, so the stack does not manage it by default: destroying a resource that owns
+# the feature would turn DCF off for every gateway on the controller. Set manage_dcf_feature = true
+# only on a dedicated lab controller.
+resource "aviatrix_config_feature" "dcf" {
+  count        = var.manage_dcf_feature ? 1 : 0
+  feature_name = "microseg"
+  is_enabled   = true
 }
 
 # Private CA the gateway uses to re-sign model-API certificates when decrypting.
-# Trust its certificate on the host and in the credential proxy (scripts/dcf-ca.sh install).
-# Controller 9.0+ deprecates this resource in favour of aviatrix_dcf_mitm_ca; on 9.x either
-# switch the resource type or upload the CA in CoPilot (Security > DCF > Settings) instead.
-resource "aviatrix_distributed_firewalling_proxy_ca_config" "this" {
-  count   = local.upload_ca ? 1 : 0
-  ca_cert = file(var.decryption_ca_cert_path)
-  ca_key  = file(var.decryption_ca_key_path)
+# Trust its certificate on the host (scripts/dcf-ca.sh install). Only one MITM CA is active per
+# controller, so the selection below replaces whatever CA was active before.
+resource "aviatrix_dcf_mitm_ca" "this" {
+  count             = local.upload_ca ? 1 : 0
+  name              = var.decryption_ca_name
+  key               = file(var.decryption_ca_key_path)
+  certificate_chain = file(var.decryption_ca_cert_path)
+}
+
+resource "aviatrix_dcf_mitm_ca_selection" "this" {
+  count = local.upload_ca ? 1 : 0
+  ca_id = aviatrix_dcf_mitm_ca.this[0].ca_id
 }
 
 # ------------------------------------------------------------------ SmartGroups
@@ -88,22 +99,22 @@ resource "aviatrix_web_group" "pkg_sources" {
 
 # ------------------------------------------------------------------ Policy list
 resource "aviatrix_distributed_firewalling_policy_list" "egress" {
-  depends_on = [aviatrix_distributed_firewalling_config.this]
+  depends_on = [aviatrix_config_feature.dcf, aviatrix_dcf_mitm_ca_selection.this]
 
   # 10: host -> model API. SNI or URL match depending on url_filtering.
   policies {
-    name             = "permit-model-api"
-    action           = "PERMIT"
-    priority         = 10
-    protocol         = "TCP"
-    logging          = true
-    watch            = false
+    name     = "permit-model-api"
+    action   = "PERMIT"
+    priority = 10
+    protocol = "TCP"
+    logging  = true
+    watch    = false
     # URL WebGroups only match decrypted HTTPS, so both of these are required for url_filtering.
     flow_app_requirement = var.url_filtering ? "TLS_REQUIRED" : null
     decrypt_policy       = var.url_filtering ? "DECRYPT_ALLOWED" : null
-    src_smart_groups = [aviatrix_smart_group.agent_host.uuid]
-    dst_smart_groups = [local.sg_public_internet]
-    web_groups       = [var.url_filtering ? aviatrix_web_group.model_api_url[0].uuid : aviatrix_web_group.model_api_sni[0].uuid]
+    src_smart_groups     = [aviatrix_smart_group.agent_host.uuid]
+    dst_smart_groups     = [local.sg_public_internet]
+    web_groups           = [var.url_filtering ? aviatrix_web_group.model_api_url[0].uuid : aviatrix_web_group.model_api_sni[0].uuid]
     port_ranges {
       lo = 443
     }

@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aviatrix = {
       source  = "AviatrixSystems/aviatrix"
-      version = ">= 3.2.0"
+      version = ">= 9.0.0" # aviatrix_config_feature / aviatrix_dcf_mitm_ca; match your controller release
     }
   }
 }
