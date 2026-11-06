@@ -74,3 +74,7 @@ Full steps, including copying files to a host that has no inbound path, are in [
 - The model-API host is never added to the agents' egress allowlist. Agents reach the model only through the credential proxy.
 - The credential never enters an agent container. It is written into the credential proxy's tmpfs per launch.
 - Treat the host as disposable. Rebuild rather than reuse after a failed escape test.
+
+## License
+
+Apache License 2.0. See [LICENSE](LICENSE).
