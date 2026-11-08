@@ -92,7 +92,7 @@ AGENT_ENV=(
   -e CLAUDE_CODE_DISABLE_REFUSAL_FALLBACK=1
 )
 if [[ "$PROVIDER" == bedrock ]]; then
-  # Article's Bedrock route: proxy address, skip-auth flag, region. No AWS credential in the container.
+  # Bedrock route: proxy address, skip-auth flag, region. No AWS credential in the container.
   AGENT_ENV+=(
     -e CLAUDE_CODE_USE_BEDROCK=1
     -e ANTHROPIC_BEDROCK_BASE_URL="http://$CRED_IP:8080"

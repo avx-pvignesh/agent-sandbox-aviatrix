@@ -6,7 +6,7 @@
 
 **Spoke VPC.** A dedicated VPC in a dedicated AWS account. One private subnet for the host. The host subnet never has a route to the internet gateway. Its default route is programmed by the Aviatrix controller to the spoke gateway.
 
-**Host.** One EC2 instance with KVM (nested-virt family or metal), Ubuntu 24.04, no public IP, no inbound security-group rules, SSM-only management through interface endpoints, IMDSv2 with hop limit 1, swap off. Docker uses the containerd devmapper snapshotter on a dedicated EBS volume; Kata Containers runs Firecracker through the jailer with the article's pinned settings (`host/kata-harden.py`). Guest kernel and image are made immutable.
+**Host.** One EC2 instance with KVM (nested-virt family or metal), Ubuntu 24.04, no public IP, no inbound security-group rules, SSM-only management through interface endpoints, IMDSv2 with hop limit 1, swap off. Docker uses the containerd devmapper snapshotter on a dedicated EBS volume; Kata Containers runs Firecracker through the jailer with pinned, hardened settings (`host/kata-harden.py`). Guest kernel and image are made immutable.
 
 **Internal `agents` network.** A Docker `--internal` bridge. Nothing on it has a default route. Each agent gets a fresh microVM attached through a companion container that holds the network namespace (a Kata requirement). The vulnerable target runs in its own microVM on the same bridge with a static IP.
 

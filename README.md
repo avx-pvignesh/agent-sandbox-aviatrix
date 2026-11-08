@@ -1,6 +1,6 @@
 # agent-sandbox-aviatrix
 
-Reference implementation of Anthropic's [agent containment / sandboxing guidance]() on AWS, with a second, independent egress control: an Aviatrix spoke gateway running Distributed Cloud Firewall (DCF) at the VPC edge.
+Reference design for running autonomous coding agents in hardware-isolated microVMs on AWS, with a second, independent egress control: an Aviatrix spoke gateway running Distributed Cloud Firewall (DCF) at the VPC edge.
 
 Each agent runs in its own Firecracker microVM (Kata Containers) on an internal Docker network with no route out. A credential proxy holds the model-API key and forwards only model calls; an egress proxy denies everything else. The host's entire egress is also forced through a spoke gateway that permits only the model API and logs every denied attempt. With URL filtering on, the gateway decrypts TLS and permits only the exact model endpoint path.
 

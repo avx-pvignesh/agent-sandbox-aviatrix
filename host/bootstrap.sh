@@ -214,4 +214,4 @@ echo "host=$HOSTK guest=$GUESTK"
 [[ "$HOSTK" != "$GUESTK" ]] || die "guest kernel equals host kernel: sandbox is NOT a microVM"
 
 log "Bootstrap complete."
-echo "Next: build proxies + agent image (scripts/build-images.sh), then flip DCF to attack phase."
+echo "Next: build proxies + agent image (scripts/build-images.sh), then switch DCF to the run phase (setup_phase=false)."

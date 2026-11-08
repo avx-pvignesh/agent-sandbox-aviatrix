@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# The article's "Verify isolation yourself" table, as a script. Run as root on the host
+# Host isolation checks, as a script. Run as root on the host
 # while an IDLE probe agent is up:   IDLE=1 scripts/launch.sh probe /dev/null &
 set -uo pipefail
 AGENT="${1:-probe}"

@@ -8,7 +8,7 @@
 
   <rect width="1480" height="900" fill="#ffffff"/>
   <text x="60" y="52" font-size="30" font-weight="700" fill="#15223a">Two locks on the agent's door</text>
-  <text x="60" y="84" font-size="18" fill="#5b6775">Anthropic's microVM sandbox and credential proxy, with an Aviatrix DCF backstop at the VPC edge</text>
+  <text x="60" y="84" font-size="18" fill="#5b6775">MicroVM sandbox and credential proxy on the host, with an Aviatrix DCF backstop at the VPC edge</text>
 
   <!-- VPC -->
   <rect x="48" y="118" width="1010" height="610" rx="16" fill="#eef4fb" stroke="#2563a8" stroke-width="2"/>

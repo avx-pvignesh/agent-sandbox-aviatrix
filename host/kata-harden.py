@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply the article's pinned Kata settings to configuration-fc.toml (section-aware).
+"""Apply pinned, hardened Kata/Firecracker settings to configuration-fc.toml (section-aware).
 
 Usage: kata-harden.py <in.toml> <out.toml> <jailer_path>
 """
